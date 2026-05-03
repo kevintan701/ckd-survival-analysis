@@ -11,18 +11,19 @@ ckd-survival-analysis/
 ├── R/
 │   ├── 01_data_download.R       # NHANES XPT retrieval via nhanesA; mortality .dat parsing
 │   ├── 02_data_cleaning.R       # Cohort construction, CKD-EPI 2021 eGFR, variable harmonization
-│   ├── 03_eda.R                 # Descriptive statistics, Table 1, survival curves (gtsummary + survminer)
-│   ├── 04_survival_analysis.R   # Cox regression (3 models), PH assumption, model discrimination
-│   ├── 05_tidymodels.R          # 10-fold stratified CV via tidymodels + censored
-│   └── 06_sensitivity.R         # Multiple imputation (MICE), spline dose-response, subgroup, cause-specific
+│   ├── 03_eda.R                 # Descriptive statistics, Table 1, Kaplan–Meier curves
+│   ├── 04_survival_analysis.R   # Cox regression (3 nested models), PH assumption, forest plot
+│   ├── 05_tidymodels.R          # 10-fold stratified CV, calibration via tidymodels + censored
+│   └── 06_sensitivity.R         # Multiple imputation (MICE), RCS spline, subgroup, cause-specific Cox
 ├── report/
-│   └── analysis.qmd             # Quarto report
+│   └── analysis.qmd             # Quarto report (HTML, code-folding, numbered sections)
 ├── output/
-│   ├── figures/                 # ggplot2 / survminer plots (PNG)
-│   └── tables/                  # gtsummary tables (HTML + CSV)
+│   ├── figures/                 # PNG figures (ggplot2 / survminer)
+│   └── tables/                  # Model output and summary tables (CSV + HTML)
 ├── data/
 │   ├── raw/                     # NHANES XPT files (J and L cycles) + NCHS mortality linkage
-│   └── processed/               # Cleaned analytic dataset (.rds / .csv)
+│   └── processed/               # Cleaned analytic dataset and fitted model objects (.rds / .csv)
+├── index.html                   # Self-contained research report (GitHub Pages)
 └── README.md
 ```
 
@@ -107,21 +108,18 @@ Age, diabetes, and poverty were the dominant predictors. CKD G-stage was not ind
 ### Requirements
 
 ```r
-install.packages(c(
-  "tidyverse", "here", "haven",
-  "nhanesA",
-  "survival", "survminer",
-  "gtsummary", "gt", "broom.helpers",
-  "tidymodels", "censored",
-  "mice", "rms",
-  "quarto", "sessioninfo"
-))
+install.packages("pacman")  # handles all remaining dependencies
+
+# Packages used across the pipeline:
+# nhanesA, tidyverse, haven, here, janitor, lubridate
+# survival, survminer, gtsummary, gt, broom, ggpubr, patchwork, scales
+# tidymodels, censored, mice, rms
 ```
 
 ### Run Order
 
 ```bash
-Rscript R/01_data_download.R      # ~5 min (downloads ~50 MB from CDC)
+Rscript R/01_data_download.R      # ~5 min (downloads ~25 MB from CDC)
 Rscript R/02_data_cleaning.R
 Rscript R/03_eda.R
 Rscript R/04_survival_analysis.R
