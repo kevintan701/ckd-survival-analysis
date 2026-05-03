@@ -1,0 +1,11 @@
+id,.metric,.estimator,.estimate,.config
+Fold01,concordance_survival,standard,0.726814124951494,pre0_mod0_post0
+Fold02,concordance_survival,standard,0.7325986078886311,pre0_mod0_post0
+Fold03,concordance_survival,standard,0.8190327613104524,pre0_mod0_post0
+Fold04,concordance_survival,standard,0.8810371123538383,pre0_mod0_post0
+Fold05,concordance_survival,standard,0.8312328767123287,pre0_mod0_post0
+Fold06,concordance_survival,standard,0.7581462708182476,pre0_mod0_post0
+Fold07,concordance_survival,standard,0.7881548974943052,pre0_mod0_post0
+Fold08,concordance_survival,standard,0.7774740295243303,pre0_mod0_post0
+Fold09,concordance_survival,standard,0.9270946681175191,pre0_mod0_post0
+Fold10,concordance_survival,standard,0.8546806353497803,pre0_mod0_post0

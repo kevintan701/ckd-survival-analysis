@@ -1,0 +1,4 @@
+model,n,events,concordance,concordance_se,loglik_null,loglik_model,lr_chisq,lr_df,lr_p,wald_chisq
+Model 1: Unadjusted,5038,102,0.744,0.0248,-845.3,-799.5,91.69,5,2.96e-18,100.32
+Model 2: + Demographics,3790,87,0.833,0.0187,-694.3,-624.3,139.93,14,7.33e-23,109.75
+Model 3: Fully adjusted,3739,78,0.847,0.0202,-621.5,-543,156.98,23,6.22e-22,133.99

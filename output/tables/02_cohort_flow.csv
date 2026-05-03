@@ -1,0 +1,8 @@
+step,n,excluded
+01_nhanes_adults,14009,0
+02_has_egfr,10812,3197
+03_has_mortality,5124,5688
+04_has_bmi,5042,82
+05_has_hba1c,5038,4
+06_followup_gt0,5038,0
+07_egfr_plausible,5038,0

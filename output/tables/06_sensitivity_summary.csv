@@ -1,0 +1,10 @@
+analysis,finding
+SA-1: Multiple imputation,HR estimates consistent with primary complete-case analysis
+SA-2: Restricted cubic splines,Non-linearity LRT p = 0.259
+SA-3: Time-varying covariates,No PH violations — primary model retained
+SA-4: Subgroup (diabetes × CKD),Subgroup HRs estimated — interaction p reported in table
+SA-4: Subgroup (age × CKD),Subgroup HRs estimated — interaction p reported in table
+SA-5: CVD-specific mortality,CVD deaths: 25
+SA-5: Renal-specific mortality,Renal deaths: 0
+SA-6: eGFR < 45 threshold,HR = 1.31 (eGFR < 45 threshold)
+SA-6: eGFR < 75 threshold,HR = 1.60 (eGFR < 75 threshold)

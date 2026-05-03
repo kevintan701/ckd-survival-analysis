@@ -1,0 +1,946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CKD & All-Cause Mortality — NHANES 2017–2023 Survival Analysis</title>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:#1a2f52;--accent:#2c5f8a;--mid:#4a7faa;--light:#e8f0f7;
+  --ink:#1c1c1e;--body:#3a3a3c;--muted:#6e6e73;--rule:#d4d4d8;
+  --bg:#fafaf8;--card:#ffffff;
+  --green:#1d6b4a;--amber:#7a4f0b;--red:#8b1f1f;
+  --green-bg:#eaf3de;--amber-bg:#fff3e0;--red-bg:#fcebeb;
+  --teal:#0e7490;--kidney:#4a6fa5;
+  --serif:'Lora',Georgia,serif;--sans:'DM Sans',system-ui,sans-serif;--mono:'DM Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--body);font-size:16px;line-height:1.7;-webkit-font-smoothing:antialiased}
+.wrap{max-width:900px;margin:0 auto;padding:0 2rem 6rem}
+
+.jrnl-hdr{border-bottom:1px solid var(--rule);padding:1.25rem 0 1rem;display:flex;justify-content:space-between;align-items:baseline}
+.jrnl-name{font-family:var(--serif);font-size:13px;color:var(--muted);letter-spacing:.04em}
+.jrnl-date{font-size:12px;color:var(--muted)}
+
+.hero{padding:3.5rem 0 2.5rem;border-bottom:2px solid var(--navy)}
+.kicker{font-size:11px;font-weight:500;letter-spacing:.12em;color:var(--mid);text-transform:uppercase;margin-bottom:1.25rem;display:flex;gap:.75rem;flex-wrap:wrap}
+.kicker span{background:var(--light);padding:3px 10px;border-radius:3px}
+.hero-title{font-family:var(--serif);font-size:clamp(22px,4.5vw,38px);font-weight:600;color:var(--navy);line-height:1.15;margin-bottom:1.25rem}
+.hero-sub{font-size:16px;color:var(--muted);font-weight:300;margin-bottom:2rem;max-width:660px}
+.author-row{display:flex;flex-wrap:wrap;gap:2rem;padding-top:1.5rem;border-top:1px solid var(--rule);font-size:13px}
+.author-col{display:flex;flex-direction:column;gap:2px}
+.alabel{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+.aval{color:var(--ink);font-weight:500}
+
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--rule);border:1px solid var(--rule);margin:2.5rem 0;border-radius:4px;overflow:hidden}
+.metric{background:var(--card);padding:1.25rem 1.5rem}
+.mlabel{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:.4rem}
+.mval{font-family:var(--serif);font-size:30px;color:var(--navy);font-weight:600;line-height:1;margin-bottom:.3rem}
+.mdesc{font-size:12px;color:var(--muted)}
+
+.abstract{background:var(--light);border-left:3px solid var(--navy);padding:1.5rem 1.75rem;margin:2rem 0 3rem;border-radius:0 4px 4px 0}
+.abstract-label{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.12em;color:var(--navy);margin-bottom:.6rem}
+.abstract p{font-size:14px;line-height:1.75;color:var(--body);margin-bottom:.6rem}
+.abstract p:last-child{margin-bottom:0}
+
+.toc{border:1px solid var(--rule);border-radius:4px;padding:1.25rem 1.5rem;margin:0 0 3rem;background:var(--card)}
+.toc-title{font-size:11px;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:.75rem;font-weight:500}
+.toc ol{padding-left:1.2rem}
+.toc li{font-size:13px;margin:.3rem 0}
+.toc a{color:var(--accent);text-decoration:none}
+.toc a:hover{text-decoration:underline}
+
+.section{margin:0 0 4rem}
+.sec-num{font-size:10px;font-weight:500;text-transform:uppercase;letter-spacing:.15em;color:var(--mid);margin-bottom:.5rem;display:block}
+h2.sec-title{font-family:var(--serif);font-size:26px;font-weight:600;color:var(--navy);margin-bottom:1.25rem;padding-bottom:.75rem;border-bottom:1px solid var(--rule);line-height:1.2}
+h3{font-family:var(--sans);font-size:13px;font-weight:500;color:var(--ink);margin:2rem 0 .6rem;text-transform:uppercase;letter-spacing:.06em}
+p{margin-bottom:1rem;font-size:15.5px;line-height:1.8;color:var(--body)}
+sup.ref{font-size:10px;color:var(--accent);font-weight:500;vertical-align:super;line-height:0}
+
+.finding{border-left:3px solid var(--accent);padding:.75rem 1.25rem;margin:1.5rem 0;background:#f7fafd;border-radius:0 4px 4px 0}
+.finding-label{font-size:10px;text-transform:uppercase;letter-spacing:.1em;color:var(--mid);font-weight:500;margin-bottom:.3rem}
+.finding p{font-size:14.5px;margin:0;color:var(--ink)}
+.finding strong{color:var(--navy)}
+
+.paradox-box{border:2px solid #d97706;background:#fffbeb;border-radius:6px;padding:1.25rem 1.5rem;margin:1.5rem 0}
+.paradox-label{font-size:10px;text-transform:uppercase;letter-spacing:.12em;font-weight:600;color:#92400e;margin-bottom:.5rem}
+.paradox-box p{font-size:14.5px;margin:0;color:#78350f}
+.paradox-box strong{color:#92400e}
+
+/* Funnel */
+.funnel-wrap{margin:1.5rem 0}
+.funnel-step{display:flex;align-items:center;gap:12px;margin-bottom:4px;opacity:0;transform:translateY(8px);transition:opacity .4s ease,transform .4s ease}
+.funnel-step.visible{opacity:1;transform:translateY(0)}
+.funnel-bar-bg{flex:1;background:#eee;border-radius:3px;height:36px;overflow:hidden;position:relative}
+.funnel-bar-fill{height:100%;border-radius:3px;display:flex;align-items:center;padding:0 12px;transition:width 1s cubic-bezier(.4,0,.2,1)}
+.funnel-label{font-size:12px;color:var(--body);width:175px;flex-shrink:0;line-height:1.3}
+.funnel-n{font-size:12px;font-family:var(--mono);color:var(--muted);width:85px;text-align:right;flex-shrink:0}
+.funnel-text{font-size:11px;color:#fff;font-weight:500;white-space:nowrap;overflow:hidden}
+.funnel-excl{font-size:11px;color:#c0392b;margin-left:auto;padding-left:12px;white-space:nowrap}
+
+/* Tabbed bar chart */
+.activity-vis{margin:1.5rem 0 2rem;background:var(--card);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+.activity-header{padding:1rem 1.5rem .75rem;border-bottom:1px solid var(--rule);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:.5rem}
+.activity-header-title{font-size:13px;font-weight:500;color:var(--ink)}
+.activity-header-cap{font-size:12px;color:var(--muted);font-style:italic}
+.tab-row{display:flex;gap:4px;padding:.75rem 1.5rem 0}
+.tab-btn{padding:5px 14px;font-size:12px;font-family:var(--sans);border:1px solid var(--rule);border-bottom:none;border-radius:4px 4px 0 0;background:#f5f5f3;color:var(--muted);cursor:pointer;transition:all .15s}
+.tab-btn.active{background:var(--card);color:var(--ink);border-color:var(--rule);font-weight:500}
+.tab-content{display:none;padding:1rem 1.5rem 1.5rem}
+.tab-content.active{display:block}
+
+.risk-bar-wrap{margin:1rem 0}
+.risk-bar-row{display:grid;grid-template-columns:120px 1fr 80px;align-items:center;gap:12px;padding:8px 0;border-bottom:1px solid #f0f0ee;opacity:0;transform:translateX(-8px);transition:opacity .4s ease,transform .4s ease}
+.risk-bar-row.visible{opacity:1;transform:translateX(0)}
+.rbl{font-size:13px;color:var(--body)}
+.rb-bg{background:#eee;border-radius:3px;height:14px;overflow:hidden}
+.rb-fill{height:100%;border-radius:3px;width:0;transition:width .9s cubic-bezier(.4,0,.2,1)}
+.rb-val{font-size:13px;font-weight:500;font-family:var(--mono);text-align:right}
+
+/* C-stat builder */
+.cstat-builder{margin:1.5rem 0;background:var(--card);border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+.cstat-header{padding:1rem 1.5rem .75rem;border-bottom:1px solid var(--rule)}
+.cstat-title{font-size:13px;font-weight:500;color:var(--ink);margin-bottom:2px}
+.cstat-cap{font-size:12px;color:var(--muted);font-style:italic}
+.cstat-steps{padding:1rem 1.5rem 1.5rem}
+.cstat-step{display:grid;grid-template-columns:22px 1fr 1fr 62px;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #f7f7f5;opacity:0;transform:translateY(6px);transition:opacity .35s ease,transform .35s ease}
+.cstat-step.visible{opacity:1;transform:translateY(0)}
+.cstat-step:last-child{border-bottom:none}
+.cs-num{font-size:11px;color:var(--muted);font-family:var(--mono);text-align:center}
+.cs-var{font-size:12.5px;color:var(--body);line-height:1.3}
+.cs-var strong{color:var(--navy)}
+.cs-var small{font-size:11px;color:var(--muted);display:block}
+.cs-track{background:#eee;border-radius:3px;height:12px;overflow:hidden}
+.cs-fill{height:100%;border-radius:3px;width:0;transition:width 1.1s cubic-bezier(.4,0,.2,1)}
+.cs-val{font-size:13px;font-weight:500;font-family:var(--mono);color:var(--navy)}
+
+/* Forest plot */
+.forest-wrap{margin:1.5rem 0;overflow-x:auto}
+.forest-row{display:grid;grid-template-columns:210px 260px 100px;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid #f7f7f5;opacity:0;transform:translateY(5px);transition:opacity .3s ease,transform .3s ease}
+.forest-row.visible{opacity:1;transform:translateY(0)}
+.forest-row.header{background:#f0f4f8;border-radius:3px;padding:7px 6px;opacity:1;transform:none;font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;border:none}
+.forest-row.group-head{opacity:1;transform:none;padding:12px 0 4px;border-bottom:none}
+.forest-row.group-head .fr-label{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}
+.fr-label{font-size:12.5px;color:var(--body);line-height:1.4}
+.fr-label small{font-size:11px;color:var(--muted);display:block}
+.fr-bar-area{position:relative;height:22px;display:flex;align-items:center}
+.fr-ref-line{position:absolute;left:50%;top:0;bottom:0;width:1px;background:#aaa}
+.fr-diamond{position:absolute;width:10px;height:10px;border-radius:2px;transform:rotate(45deg);transition:all .8s cubic-bezier(.4,0,.2,1)}
+.fr-ci{position:absolute;height:2px;top:10px;transition:all .8s cubic-bezier(.4,0,.2,1)}
+.fr-or{font-size:12px;font-family:var(--mono);font-weight:500}
+.fr-or.prot{color:var(--green)}
+.fr-or.risk{color:var(--red)}
+.fr-or.ns{color:var(--muted)}
+
+/* Income gradient */
+.income-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin:1.25rem 0}
+.income-card{border-radius:6px;padding:1.1rem;text-align:center;opacity:0;transform:translateY(8px);transition:opacity .4s ease,transform .4s ease}
+.income-card.visible{opacity:1;transform:translateY(0)}
+.inc-tier{font-size:10px;text-transform:uppercase;letter-spacing:.1em;font-weight:500;margin-bottom:.5rem}
+.inc-hr{font-family:var(--serif);font-size:28px;font-weight:600;line-height:1;margin-bottom:.25rem}
+.inc-ci{font-size:11px;color:var(--muted)}
+.inc-ref{background:#f0f4f8;border:1px solid var(--rule)}.inc-ref .inc-tier{color:var(--muted)}.inc-ref .inc-hr{color:var(--muted);font-size:22px}
+.inc-mid{background:#fdf6e3;border:1px solid #e8d5a3}.inc-mid .inc-tier{color:#7a5c00}.inc-mid .inc-hr{color:#7a5c00}
+.inc-low{background:#fdf0e0;border:1px solid #e8b87a}.inc-low .inc-tier{color:#8b4000}.inc-low .inc-hr{color:#8b4000}
+.inc-pov{background:#fce8e8;border:1px solid #e8a0a0}.inc-pov .inc-tier{color:#8b1f1f}.inc-pov .inc-hr{color:#8b1f1f}
+
+/* BMI paradox */
+.bmi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.75rem;margin:1.25rem 0}
+.bmi-card{border-radius:6px;padding:1rem;text-align:center;opacity:0;transform:translateY(8px);transition:opacity .4s ease,transform .4s ease}
+.bmi-card.visible{opacity:1;transform:translateY(0)}
+.bmi-cat{font-size:10px;text-transform:uppercase;letter-spacing:.1em;font-weight:500;margin-bottom:.4rem;color:var(--muted)}
+.bmi-rate{font-family:var(--serif);font-size:26px;font-weight:600;line-height:1;margin-bottom:.25rem}
+.bmi-unit{font-size:10px;color:var(--muted)}
+.bmi-hr{font-size:11px;margin-top:.3rem;font-family:var(--mono)}
+.bmi-uw{background:#f0f4f8;border:1px solid var(--rule)}.bmi-uw .bmi-rate{color:var(--muted)}
+.bmi-nm{background:#fce8e8;border:1px solid #e8a0a0}.bmi-nm .bmi-rate{color:#8b1f1f}
+.bmi-ow{background:#eaf3de;border:1px solid #9ecb7a}.bmi-ow .bmi-rate{color:#1d6b4a}
+.bmi-ob{background:#f0f8ee;border:1px solid #b5d99a}.bmi-ob .bmi-rate{color:#2d6a28}
+
+/* CV folds chart */
+.cv-fold-wrap{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin:1.25rem 0;align-items:end;height:120px}
+.cv-fold-bar{display:flex;flex-direction:column;align-items:center;gap:3px;height:100%;justify-content:flex-end}
+.cv-fold-fill{width:100%;background:var(--accent);border-radius:3px 3px 0 0;transition:height 1s cubic-bezier(.4,0,.2,1);height:0}
+.cv-fold-label{font-size:9px;color:var(--muted);font-family:var(--mono)}
+.cv-fold-val{font-size:9px;color:var(--navy);font-family:var(--mono);font-weight:500}
+
+/* Sensitivity table */
+.sens-table{width:100%;border-collapse:collapse;font-size:13px;margin:1rem 0}
+.sens-table thead tr{background:var(--navy)}
+.sens-table thead th{color:#fff;font-weight:400;padding:8px 12px;text-align:left;font-size:11px;letter-spacing:.03em}
+.sens-table tbody tr:nth-child(even){background:#f7f7f5}
+.sens-table tbody td{padding:7px 12px;color:var(--body);border-bottom:1px solid #eee;line-height:1.5}
+.badge{display:inline-block;font-size:10px;padding:2px 7px;border-radius:10px;font-weight:500;letter-spacing:.03em}
+.badge-match{background:#eaf3de;color:#1d6b4a}
+.badge-sig{background:#fce8e8;color:#8b1f1f}
+
+/* Embedded figures */
+.fig-mt{margin-top:1.5rem}
+.fig-mt-lg{margin-top:2rem}
+.fig-wrap{margin:1.5rem 0}
+.fig-img{width:100%;border-radius:4px;border:1px solid var(--rule);display:block}
+.fig-cap{font-size:12px;color:var(--muted);margin-top:.5rem;line-height:1.5;font-style:italic}
+
+/* Data table */
+.data-table{width:100%;border-collapse:collapse;font-size:13px;margin:1rem 0}
+.data-table thead tr{background:var(--navy)}
+.data-table thead th{color:#fff;font-weight:400;padding:8px 12px;text-align:left;font-size:11px;letter-spacing:.03em}
+.data-table tbody tr:nth-child(even){background:#f7f7f5}
+.data-table tbody td{padding:7px 12px;border-bottom:1px solid #eee}
+
+.fade-in{opacity:0;transform:translateY(16px);transition:opacity .5s ease,transform .5s ease}
+.fade-in.visible{opacity:1;transform:translateY(0)}
+.note{background:#f7f7f5;border:1px solid var(--rule);border-radius:4px;padding:.75rem 1rem;font-size:12.5px;color:var(--muted);margin:.75rem 0;line-height:1.6}
+.limit-list{list-style:none;padding:0}
+.limit-list li{font-size:14.5px;padding:.7rem 1rem .7rem 1.25rem;border-left:2px solid var(--rule);margin-bottom:.5rem;line-height:1.65}
+.references ol{padding-left:1.4rem}
+.references li{font-size:13px;line-height:1.65;margin-bottom:.6rem}
+hr.div{border:none;border-top:.5px solid var(--rule);margin:2.5rem 0}
+footer{border-top:1px solid var(--rule);padding:2rem 0 1rem;margin-top:4rem;display:flex;justify-content:space-between;font-size:12px;color:var(--muted);flex-wrap:wrap;gap:.5rem}
+
+@media(max-width:640px){
+  .metrics{grid-template-columns:repeat(2,1fr)}
+  .income-grid,.bmi-grid{grid-template-columns:repeat(2,1fr)}
+  .forest-row{grid-template-columns:160px 200px 80px}
+  .cstat-step{grid-template-columns:18px 1fr 1fr 54px}
+  .risk-bar-row{grid-template-columns:100px 1fr 70px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="jrnl-hdr">
+  <span class="jrnl-name">Health Analytics Portfolio — Original Research</span>
+  <span class="jrnl-date">December 2025</span>
+</header>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="kicker">
+    <span>Survival Analysis</span><span>CDC NHANES 2017–2023</span><span>R / Cox Proportional Hazards</span><span>tidymodels · survival · MICE</span>
+  </div>
+  <h1 class="hero-title">CKD Stage, Modifiable Risk Factors,<br>and All-Cause Mortality in U.S. Adults</h1>
+  <p class="hero-sub">Time-to-event analysis of 5,038 NHANES participants linked to the National Death Index — identifying which factors truly drive survival after accounting for renal function</p>
+  <div class="author-row">
+    <div class="author-col"><span class="alabel">Author</span><span class="aval">Yuntao (Kevin) Tan</span></div>
+    <div class="author-col"><span class="alabel">Date</span><span class="aval">December 2025</span></div>
+    <div class="author-col"><span class="alabel">Data source</span><span class="aval">CDC NHANES J (2017–18) + L (2021–23)</span></div>
+    <div class="author-col"><span class="alabel">Contact</span><span class="aval">tyuntao@umich.edu</span></div>
+  </div>
+</section>
+
+<!-- Key metrics -->
+<div class="metrics">
+  <div class="metric"><div class="mlabel">Analytic sample</div><div class="mval" id="cnt-n">5,038</div><div class="mdesc">U.S. adults ≥18 years</div></div>
+  <div class="metric"><div class="mlabel">Deaths observed</div><div class="mval" id="cnt-ev">102</div><div class="mdesc">Median follow-up 2.1 years</div></div>
+  <div class="metric"><div class="mlabel">C-statistic (full)</div><div class="mval" id="cnt-cstat">0.847</div><div class="mdesc">Primary Cox model</div></div>
+  <div class="metric"><div class="mlabel">C-statistic (CV)</div><div class="mval" id="cnt-cv">0.810</div><div class="mdesc">10-fold cross-validated</div></div>
+</div>
+
+<!-- Abstract -->
+<div class="abstract fade-in">
+  <div class="abstract-label">Abstract</div>
+  <p><strong>Background:</strong> Chronic kidney disease (CKD) affects an estimated 37 million U.S. adults and is a major predictor of cardiovascular and all-cause mortality.<sup class="ref">1,2</sup> However, the relative contribution of renal function staging versus modifiable comorbidities — diabetes, poverty, physical activity — to mortality risk remains incompletely characterised in nationally representative samples.</p>
+  <p><strong>Methods:</strong> We analysed 5,038 adults from NHANES cycles J (2017–2018) and L (2021–2023) linked to National Death Index mortality records (NCHS, 2023 release). CKD stage was defined using the CKD-EPI 2021 race-free creatinine equation and KDIGO 2024 G-staging.<sup class="ref">3,4</sup> Multivariable Cox proportional hazards regression was fitted in three nested models. Model discrimination was assessed by Harrell's C-statistic, validated by 10-fold stratified cross-validation via tidymodels. Sensitivity analyses included multiple imputation (MICE, m=20), restricted cubic splines for eGFR dose-response, and cause-specific mortality analysis.</p>
+  <p><strong>Results:</strong> Over median 2.1 years, 102 deaths occurred (2.0%). In the fully adjusted model (N=3,739; events=78), age per decade (HR 1.73, 95% CI 1.40–2.15, p&lt;0.001) and diabetes (HR 1.73, 95% CI 1.03–2.90, p=0.038) were the dominant predictors. Economic hardship showed the strongest effect: below-poverty adults had 2.75-fold higher mortality risk (95% CI 1.18–6.37, p=0.019). CKD stage was not independently significant after adjustment, consistent with the 2.1-year median follow-up. BMI showed a counter-intuitive inverse association (obesity paradox). Full-model C=0.847; cross-validated C=0.810. Proportional hazards assumption satisfied globally (p=0.920).</p>
+  <p style="margin:0"><strong>Conclusions:</strong> In this nationally representative sample, age, diabetes, and income level — not CKD stage alone — are the dominant drivers of short-term mortality. Findings underscore the need for multi-domain risk assessment beyond renal function staging alone.</p>
+</div>
+
+<!-- TOC -->
+<nav class="toc fade-in">
+  <div class="toc-title">Contents</div>
+  <ol>
+    <li><a href="#s1">Introduction</a></li>
+    <li><a href="#s2">Data &amp; Methods</a></li>
+    <li><a href="#s3">Cohort Profile</a></li>
+    <li><a href="#s4">Unadjusted Mortality Patterns</a></li>
+    <li><a href="#s5">Cox Regression Results</a></li>
+    <li><a href="#s6">The Three Dominant Predictors</a></li>
+    <li><a href="#s7">The Obesity Paradox in CKD</a></li>
+    <li><a href="#s8">Model Validation &amp; Sensitivity</a></li>
+    <li><a href="#s9">Discussion</a></li>
+    <li><a href="#limitations">Limitations</a></li>
+    <li><a href="#references">References</a></li>
+  </ol>
+</nav>
+
+<!-- S1 Introduction -->
+<section class="section fade-in" id="s1">
+  <span class="sec-num">Section 1</span>
+  <h2 class="sec-title">Introduction</h2>
+  <p>Chronic kidney disease (CKD) is a silent epidemic: 37 million Americans live with reduced kidney function, yet fewer than 10% are aware of their diagnosis.<sup class="ref">1,5</sup> CKD is classified by the Kidney Disease Improving Global Outcomes (KDIGO) framework into G-stages based on estimated glomerular filtration rate (eGFR) — ranging from G1 (normal, eGFR ≥90) through G5 (kidney failure, eGFR &lt;15). Each stage carries progressively higher risk of progression to end-stage renal disease (ESRD) and premature mortality.</p>
+  <p>Yet CKD rarely exists in isolation. Most patients with CKD also carry diabetes (a leading cause of CKD), hypertension, cardiovascular disease, and socioeconomic disadvantage — all independent mortality predictors. A clinically important question is therefore: after accounting for these comorbidities, does CKD stage itself carry independent prognostic weight? And which modifiable factors offer the greatest leverage for intervention?</p>
+  <p>This analysis addresses these questions using NHANES 2017–2023 data linked to the National Death Index, applying modern survival analysis methods including cross-validated Cox regression, multiple imputation, and restricted cubic splines for dose-response assessment.</p>
+</section>
+
+<hr class="div">
+
+<!-- S2 Methods -->
+<section class="section fade-in" id="s2">
+  <span class="sec-num">Section 2</span>
+  <h2 class="sec-title">Data &amp; Methods</h2>
+
+  <h3>2.1 Data source</h3>
+  <p>Data were drawn from two completed NHANES cycles: J (2017–2018) and L (August 2021–2023). The 2019–2020 cycle (K) was suspended mid-collection due to COVID-19 and was never released. Mortality outcomes were ascertained via the <strong>NHANES Public Use Linked Mortality Files</strong> (NCHS, 2023), which link NHANES respondents to the National Death Index through December 31, 2019. XPT files were retrieved programmatically using the nhanesA R package and parsed using the haven library.</p>
+
+  <h3>2.2 Renal function classification</h3>
+  <p>eGFR was calculated using the <strong>CKD-EPI 2021 race-free creatinine equation</strong>, consistent with current KDIGO 2024 guidelines and clinical laboratory standards.<sup class="ref">3,4</sup> CKD stage was assigned using KDIGO G-categories (G1–G5). UACR (urine albumin-to-creatinine ratio) was log-transformed for modelling to handle right skew.</p>
+
+  <h3>2.3 Statistical approach</h3>
+  <table class="data-table">
+    <thead><tr><th>Stage</th><th>Method</th><th>Package</th></tr></thead>
+    <tbody>
+      <tr><td>Descriptive statistics</td><td>Table 1 stratified by CKD status</td><td>gtsummary</td></tr>
+      <tr><td>Survival visualisation</td><td>Kaplan–Meier curves by CKD stage</td><td>survminer</td></tr>
+      <tr><td>Primary inference</td><td>Multivariable Cox proportional hazards (3 nested models)</td><td>survival</td></tr>
+      <tr><td>PH assumption</td><td>Schoenfeld residuals, global and per-variable tests</td><td>survival</td></tr>
+      <tr><td>Functional form</td><td>Martingale residuals; restricted cubic splines (3 knots)</td><td>rms</td></tr>
+      <tr><td>Model discrimination</td><td>Harrell's C-statistic + 10-fold stratified CV</td><td>tidymodels + censored</td></tr>
+      <tr><td>Missing data</td><td>Multiple imputation by chained equations (m=20, maxit=10)</td><td>mice</td></tr>
+      <tr><td>Sensitivity</td><td>Cause-specific Cox, subgroup forest plots, eGFR threshold sensitivity</td><td>survival</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<hr class="div">
+
+<!-- S3 Cohort -->
+<section class="section fade-in" id="s3">
+  <span class="sec-num">Section 3</span>
+  <h2 class="sec-title">Cohort Profile</h2>
+
+  <h3>3.1 Inclusion / exclusion flow</h3>
+  <div class="funnel-wrap" id="funnel">
+    <div class="funnel-step"><span class="funnel-label">NHANES adults ≥18</span><div class="funnel-bar-bg"><div class="funnel-bar-fill" style="background:#2c5f8a;color:#fff" data-w="100"><span class="funnel-text">14,009 participants</span></div></div><span class="funnel-n">N = 14,009</span></div>
+    <div class="funnel-step"><span class="funnel-label">Has serum creatinine / eGFR</span><div class="funnel-bar-bg"><div class="funnel-bar-fill" style="background:#3a74a0" data-w="77.2"><span class="funnel-text">10,812 (−3,197 no lab data)</span></div></div><span class="funnel-n">N = 10,812</span></div>
+    <div class="funnel-step"><span class="funnel-label">Linked mortality record</span><div class="funnel-bar-bg"><div class="funnel-bar-fill" style="background:#4a7faa" data-w="36.6"><span class="funnel-text">5,124 (−5,688 unmatched)</span></div></div><span class="funnel-n">N = 5,124</span></div>
+    <div class="funnel-step"><span class="funnel-label">Complete covariates (BMI, HbA1c)</span><div class="funnel-bar-bg"><div class="funnel-bar-fill" style="background:#1d6b4a" data-w="36.0"><span class="funnel-text">5,038 — analytic dataset ✓</span></div></div><span class="funnel-n">N = 5,038</span></div>
+  </div>
+  <div class="note">The largest exclusion (−5,688) reflects the mortality file linkage window: NHANES L participants (2021–2023) were not yet matched to the National Death Index cut-off date (December 2019), leaving primarily J-cycle (2017–2018) participants with usable follow-up time.</div>
+
+  <h3>3.2 Sample characteristics</h3>
+  <table class="data-table">
+    <thead><tr><th>Characteristic</th><th>Value</th><th>Notes</th></tr></thead>
+    <tbody>
+      <tr><td>Total participants</td><td>5,038</td><td>NHANES J + L cycles</td></tr>
+      <tr><td>Deaths (events)</td><td>102 (2.0%)</td><td>Median follow-up: 2.1 years</td></tr>
+      <tr><td>Median age</td><td>52 years</td><td>Range 18–80</td></tr>
+      <tr><td>Median eGFR</td><td>97.3 mL/min/1.73m²</td><td>CKD-EPI 2021 race-free</td></tr>
+      <tr><td>CKD prevalence (eGFR &lt;60)</td><td>8.5%</td><td>KDIGO stages G3–G5</td></tr>
+      <tr><td>Diabetes prevalence</td><td>18.8%</td><td>HbA1c ≥6.5% or diagnosis</td></tr>
+      <tr><td>Hypertension prevalence</td><td>36.5%</td><td>Questionnaire-based</td></tr>
+      <tr><td>NH White / NH Black / Hispanic</td><td>35% / 22% / 24%</td><td>NHANES race/ethnicity categories</td></tr>
+    </tbody>
+  </table>
+
+  <h3>3.2b eGFR distribution across the cohort</h3>
+  <div class="fig-wrap">
+    <img src="output/figures/03_egfr_distribution.png" alt="eGFR distribution histogram across NHANES CKD cohort" class="fig-img">
+    <p class="fig-cap">Figure 1a. Distribution of eGFR (CKD-EPI 2021 race-free equation) in the analytic cohort (N=5,038). Dashed vertical lines mark KDIGO G-stage boundaries (60, 45, 30, 15 mL/min/1.73m²). The right-skewed distribution reflects the general community-dwelling population; most participants have preserved kidney function (G1–G2, eGFR ≥60).</p>
+  </div>
+
+  <h3>3.3 Kaplan–Meier survival curves by CKD stage</h3>
+  <div class="fig-wrap">
+    <img src="output/figures/03_km_ckd_stage.png" alt="Kaplan–Meier survival curves stratified by KDIGO CKD G-stage" class="fig-img">
+    <p class="fig-cap">Figure 1. Kaplan–Meier overall survival curves stratified by KDIGO G-stage (collapsed: G1–G2 eGFR ≥60, G3 eGFR 30–59, G4–G5 eGFR &lt;30). Log-rank p-value displayed. NHANES 2017–2023.</p>
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- S4 Unadjusted mortality -->
+<section class="section fade-in" id="s4">
+  <span class="sec-num">Section 4</span>
+  <h2 class="sec-title">Unadjusted Mortality Patterns</h2>
+
+  <div class="finding">
+    <div class="finding-label">Key Pattern</div>
+    <p>Unadjusted mortality rates reveal sharp gradients: <strong>G3b (eGFR 30–44) patients die at 17× the rate of G1 patients</strong>. But critically, these unadjusted associations are confounded — G3b patients are older and more likely to have diabetes. After adjustment, CKD stage loses significance.</p>
+  </div>
+
+  <div class="activity-vis">
+    <div class="activity-header">
+      <span class="activity-header-title">Figure 2. Unadjusted all-cause mortality rates by key risk factors</span>
+      <span class="activity-header-cap">Per 100 person-years | Click tab to switch</span>
+    </div>
+    <div class="tab-row">
+      <button class="tab-btn active" onclick="switchTab('ckd')">CKD stage</button>
+      <button class="tab-btn" onclick="switchTab('age')">Age group</button>
+      <button class="tab-btn" onclick="switchTab('dm')">Diabetes</button>
+      <button class="tab-btn" onclick="switchTab('inc')">Income</button>
+    </div>
+    <div class="tab-content active" id="tab-ckd">
+      <div class="risk-bar-wrap">
+        <div class="risk-bar-row"><span class="rbl">G1 (eGFR ≥90)</span><div class="rb-bg"><div class="rb-fill" style="background:#1d9e75" data-w="5.8"></div></div><span class="rb-val" style="color:#1d9e75">0.40</span></div>
+        <div class="risk-bar-row"><span class="rbl">G2 (60–89)</span><div class="rb-bg"><div class="rb-fill" style="background:#f39c12" data-w="19.3"></div></div><span class="rb-val" style="color:#f39c12">1.34</span></div>
+        <div class="risk-bar-row"><span class="rbl">G3a (45–59)</span><div class="rb-bg"><div class="rb-fill" style="background:#e67e22" data-w="48.8"></div></div><span class="rb-val" style="color:#e67e22">3.39</span></div>
+        <div class="risk-bar-row"><span class="rbl">G3b (30–44)</span><div class="rb-bg"><div class="rb-fill" style="background:#c0392b" data-w="100"></div></div><span class="rb-val" style="color:#c0392b">6.95</span></div>
+        <div class="risk-bar-row"><span class="rbl">G4 (15–29)</span><div class="rb-bg"><div class="rb-fill" style="background:#c0392b" data-w="98.0"></div></div><span class="rb-val" style="color:#c0392b">6.81</span></div>
+      </div>
+      <div class="note">Per 100 person-years. G3b rate (6.95) is 17× the G1 rate (0.40). However, G3b patients are substantially older (median age ~70 vs ~45 for G1) — age drives much of this unadjusted gradient.</div>
+    </div>
+    <div class="tab-content" id="tab-age">
+      <div class="risk-bar-wrap">
+        <div class="risk-bar-row"><span class="rbl">Age 18–39</span><div class="rb-bg"><div class="rb-fill" style="background:#1d9e75" data-w="3.7"></div></div><span class="rb-val" style="color:#1d9e75">0.15</span></div>
+        <div class="risk-bar-row"><span class="rbl">Age 40–59</span><div class="rb-bg"><div class="rb-fill" style="background:#f39c12" data-w="12.4"></div></div><span class="rb-val" style="color:#f39c12">0.51</span></div>
+        <div class="risk-bar-row"><span class="rbl">Age 60–74</span><div class="rb-bg"><div class="rb-fill" style="background:#e67e22" data-w="35.1"></div></div><span class="rb-val" style="color:#e67e22">1.44</span></div>
+        <div class="risk-bar-row"><span class="rbl">Age 75+</span><div class="rb-bg"><div class="rb-fill" style="background:#c0392b" data-w="100"></div></div><span class="rb-val" style="color:#c0392b">4.10</span></div>
+      </div>
+      <div class="note">Per 100 person-years. Adults 75+ die at 27× the rate of 18–39 year-olds. In the adjusted model, each additional decade of age raises mortality hazard by 73% (HR 1.73, p&lt;0.001).</div>
+    </div>
+    <div class="tab-content" id="tab-dm">
+      <div class="risk-bar-wrap">
+        <div class="risk-bar-row"><span class="rbl">No diabetes</span><div class="rb-bg"><div class="rb-fill" style="background:#1d9e75" data-w="33.8"></div></div><span class="rb-val" style="color:#1d9e75">0.73</span></div>
+        <div class="risk-bar-row"><span class="rbl">Diabetes</span><div class="rb-bg"><div class="rb-fill" style="background:#c0392b" data-w="100"></div></div><span class="rb-val" style="color:#c0392b">2.16</span></div>
+      </div>
+      <div class="note">Per 100 person-years. Diabetic adults have 3× the unadjusted mortality rate. After full multivariable adjustment, the adjusted HR is 1.73 (p=0.038) — remaining highly significant.</div>
+    </div>
+    <div class="tab-content" id="tab-inc">
+      <div class="risk-bar-wrap">
+        <div class="risk-bar-row"><span class="rbl">High income</span><div class="rb-bg"><div class="rb-fill" style="background:#1d9e75" data-w="13.6"></div></div><span class="rb-val" style="color:#1d9e75">0.56</span></div>
+        <div class="risk-bar-row"><span class="rbl">Middle income</span><div class="rb-bg"><div class="rb-fill" style="background:#3498db" data-w="18.6"></div></div><span class="rb-val" style="color:#3498db">0.76</span></div>
+        <div class="risk-bar-row"><span class="rbl">Below poverty</span><div class="rb-bg"><div class="rb-fill" style="background:#e67e22" data-w="27.6"></div></div><span class="rb-val" style="color:#e67e22">1.13</span></div>
+        <div class="risk-bar-row"><span class="rbl">Low income</span><div class="rb-bg"><div class="rb-fill" style="background:#c0392b" data-w="100"></div></div><span class="rb-val" style="color:#c0392b">1.59</span></div>
+      </div>
+      <div class="note">Per 100 person-years. The income gradient persists after full adjustment: below-poverty adults have HR 2.75 (p=0.019) vs. high-income. Income explains variance independent of age, diabetes, and CKD stage.</div>
+    </div>
+  </div>
+
+  <div class="fig-wrap fig-mt">
+    <img src="output/figures/03_mortality_rates.png" alt="Unadjusted mortality rates by key risk factors" class="fig-img">
+    <p class="fig-cap">Figure 2b. Unadjusted all-cause mortality rates (per 100 person-years) stratified by CKD stage, age group, diabetes status, and income category. Error bars are 95% Poisson confidence intervals. The sharp gradients within each panel — especially the 17× difference between G3b and G1 — are substantially attenuated after multivariable adjustment.</p>
+  </div>
+
+  <h3>4.2 Albuminuria distribution — UACR by CKD stage</h3>
+  <div class="fig-wrap">
+    <img src="output/figures/03_uacr_boxplot.png" alt="UACR boxplot by CKD G-stage" class="fig-img">
+    <p class="fig-cap">Figure 3a. Urine albumin-to-creatinine ratio (log scale) by KDIGO G-stage. UACR rises with advancing CKD, particularly in G4–G5. Albuminuria (UACR ≥30 mg/g) captures a dimension of kidney injury not reflected by eGFR alone. The borderline-significant HR of 1.19 per log-unit (p=0.057) becomes significant in multiple imputation (SA-1: p=0.033).</p>
+  </div>
+
+  <h3>4.3 KDIGO Risk Heat Map — G-stage × Albuminuria</h3>
+  <div class="fig-wrap">
+    <img src="output/figures/03_risk_heatmap.png" alt="KDIGO 2024 risk heat map showing G-stage by A-stage participant counts" class="fig-img">
+    <p class="fig-cap">Figure 3b. KDIGO 2024 risk heat map. Cell values show NHANES participant counts by G-stage (eGFR category) and A-stage (albuminuria). Colour indicates KDIGO prognosis category (green = low, red = very high risk). Most participants fall in the low-to-moderate risk cells — consistent with a community-dwelling, non-ESRD cohort.</p>
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- S5 Cox Regression -->
+<section class="section fade-in" id="s5">
+  <span class="sec-num">Section 5</span>
+  <h2 class="sec-title">Cox Regression Results</h2>
+
+  <h3>5.1 Model discrimination — C-statistic progression</h3>
+  <p>Three nested Cox models were fitted. The C-statistic rises dramatically from Model 1 to Model 2 (adding demographics), while the full covariate adjustment adds only incremental gain — reflecting that age is both the strongest predictor and highly correlated with CKD stage.</p>
+
+  <div class="cstat-builder">
+    <div class="cstat-header">
+      <div class="cstat-title">Figure 4. C-statistic progression across nested Cox models</div>
+      <div class="cstat-cap">Each row shows cumulative discrimination gain. Scale: 0.50 (chance) to 0.85.</div>
+    </div>
+    <div class="cstat-steps" id="cstat-steps">
+      <div class="cstat-step"><span class="cs-num">0</span><span class="cs-var">Null model<small>No predictors</small></span><div class="cs-track"><div class="cs-fill" style="background:#d0d0d0" data-w="0"></div></div><span class="cs-val" style="color:var(--muted)">0.500</span></div>
+      <div class="cstat-step"><span class="cs-num">1</span><span class="cs-var"><strong>CKD stage only</strong><small>Model 1 — N=5,038, events=102</small></span><div class="cs-track"><div class="cs-fill" style="background:#4a7faa" data-w="70.3"></div></div><span class="cs-val">0.744</span></div>
+      <div class="cstat-step"><span class="cs-num">2</span><span class="cs-var"><strong>+ Demographics</strong><small>Model 2 — age, sex, race/ethnicity · N=3,790</small></span><div class="cs-track"><div class="cs-fill" style="background:#2c5f8a" data-w="96.3"></div></div><span class="cs-val">0.833</span></div>
+      <div class="cstat-step"><span class="cs-num">3</span><span class="cs-var"><strong>+ Comorbidities &amp; Lifestyle</strong><small>Model 3 (primary) — diabetes, income, BMI, PA, smoking · N=3,739</small></span><div class="cs-track"><div class="cs-fill" style="background:#1a2f52" data-w="100"></div></div><span class="cs-val" style="color:var(--navy);font-weight:600">0.847</span></div>
+      <div class="cstat-step"><span class="cs-num">CV</span><span class="cs-var"><strong>10-fold cross-validated</strong><small>Unbiased estimate — optimism: 3.7 points</small></span><div class="cs-track"><div class="cs-fill" style="background:#1d6b4a" data-w="89.9"></div></div><span class="cs-val" style="color:#1d6b4a">0.810</span></div>
+    </div>
+    <div style="display:flex;gap:16px;padding:.5rem 1.5rem 1rem;flex-wrap:wrap">
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)"><div style="width:10px;height:10px;background:#4a7faa;border-radius:2px"></div>Renal function</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)"><div style="width:10px;height:10px;background:#2c5f8a;border-radius:2px"></div>Demographics</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)"><div style="width:10px;height:10px;background:#1a2f52;border-radius:2px"></div>Full model</div>
+      <div style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)"><div style="width:10px;height:10px;background:#1d6b4a;border-radius:2px"></div>Cross-validated (unbiased)</div>
+    </div>
+  </div>
+
+  <h3>5.2 Forest plot — Model 3 adjusted hazard ratios</h3>
+  <p>After full adjustment, only 6 of 24 model terms reached p&lt;0.05: age per decade, diabetes, below-poverty, low-income, overweight BMI, and obese BMI. CKD stage and hypertension were not independently significant.</p>
+
+  <div class="forest-wrap">
+    <div class="forest-row header">
+      <span>Predictor</span>
+      <span style="text-align:center;display:block">← Protective &nbsp;&nbsp;&nbsp;&nbsp; HR = 1 &nbsp;&nbsp;&nbsp;&nbsp; Harmful →</span>
+      <span>HR (95% CI) &nbsp; p</span>
+    </div>
+
+    <!-- Group: Protective / Obesity paradox -->
+    <div class="forest-row group-head"><span class="fr-label">BMI — Obesity Paradox ↓</span><span></span><span></span></div>
+    <div class="forest-row" data-or="0.315" data-lo="0.172" data-hi="0.578" data-prot="true">
+      <span class="fr-label">Overweight vs Normal BMI<small>p &lt;0.001 ★★★</small></span>
+      <div class="fr-bar-area"><div class="fr-ref-line"></div></div>
+      <span class="fr-or prot">0.32 (0.17–0.58)</span>
+    </div>
+    <div class="forest-row" data-or="0.373" data-lo="0.213" data-hi="0.651" data-prot="true">
+      <span class="fr-label">Obese vs Normal BMI<small>p &lt;0.001 ★★★</small></span>
+      <div class="fr-bar-area"><div class="fr-ref-line"></div></div>
+      <span class="fr-or prot">0.37 (0.21–0.65)</span>
+    </div>
+
+    <!-- Group: Race/ethnicity -->
+    <div class="forest-row group-head"><span class="fr-label">Race / Ethnicity (ref: NH White) ↓</span><span></span><span></span></div>
+    <div class="forest-row" data-or="0.299" data-lo="0.091" data-hi="0.980" data-prot="true">
+      <span class="fr-label">Other Hispanic vs NH White<small>p = 0.046 ★</small></span>
+      <div class="fr-bar-area"><div class="fr-ref-line"></div></div>
+      <span class="fr-or prot">0.30 (0.09–0.98)</span>
+    </div>
+    <div class="forest-row" data-or="0.522" data-lo="0.276" data-hi="0.986" data-prot="true">
+      <span class="fr-label">NH Black vs NH White<small>p = 0.045 ★</small></span>
+      <div class="fr-bar-area"><div class="fr-ref-line"></div></div>
+      <span class="fr-or prot">0.52 (0.28–0.99)</span>
+    </div>
+
+    <!-- Group: CKD/Renal -->
+    <div class="forest-row group-head"><span class="fr-label">Renal Function ↓</span><span></span><span></span></div>
+    <div class="forest-row" data-or="1.09" data-lo="0.587" data-hi="2.03" data-prot="null">
+      <span class="fr-label">CKD G2 vs G1<small>p = 0.78, n.s.</small></span>
+      <div class="fr-bar-area"><div class="fr-ref-line"></div></div>
+      <span class="fr-or ns">1.09 (0.59–2.03)</span>
+    </div>
+    <div class="forest-row" data-or="1.75" data-lo="0.707" data-hi="4.34" data-prot="null">
+      <span class="fr-label">CKD G3b vs G1<small>p = 0.23, n.s.</small></span>
+      <div class="fr-bar-area"><div class="fr-ref-line"></div></div>
+      <span class="fr-or ns">1.75 (0.71–4.34)</span>
+    </div>
+    <div class="forest-row" data-or="1.19" data-lo="0.995" data-hi="1.41" data-prot="null">
+      <span class="fr-label">log(UACR), per unit<small>p = 0.057, borderline</small></span>
+      <div class="fr-bar-area"><div class="fr-ref-line"></div></div>
+      <span class="fr-or ns">1.19 (1.00–1.41)</span>
+    </div>
+
+    <!-- Group: Dominant risk factors -->
+    <div class="forest-row group-head"><span class="fr-label">Dominant Risk Factors ↓</span><span></span><span></span></div>
+    <div class="forest-row" data-or="1.73" data-lo="1.03" data-hi="2.90" data-prot="false">
+      <span class="fr-label">Diabetes (ref: no)<small>p = 0.038 ★</small></span>
+      <div class="fr-bar-area"><div class="fr-ref-line"></div></div>
+      <span class="fr-or risk">1.73 (1.03–2.90)</span>
+    </div>
+    <div class="forest-row" data-or="1.73" data-lo="1.40" data-hi="2.15" data-prot="false">
+      <span class="fr-label">Age, per decade<small>p &lt;0.001 ★★★</small></span>
+      <div class="fr-bar-area"><div class="fr-ref-line"></div></div>
+      <span class="fr-or risk">1.73 (1.40–2.15)</span>
+    </div>
+    <div class="forest-row" data-or="2.48" data-lo="1.18" data-hi="5.19" data-prot="false">
+      <span class="fr-label">Low income vs High income<small>p = 0.016 ★</small></span>
+      <div class="fr-bar-area"><div class="fr-ref-line"></div></div>
+      <span class="fr-or risk">2.48 (1.18–5.19)</span>
+    </div>
+    <div class="forest-row" data-or="2.75" data-lo="1.18" data-hi="6.37" data-prot="false">
+      <span class="fr-label">Below poverty vs High income ★<small>p = 0.019 ★ — Strongest predictor</small></span>
+      <div class="fr-bar-area"><div class="fr-ref-line"></div></div>
+      <span class="fr-or risk">2.75 (1.18–6.37)</span>
+    </div>
+  </div>
+  <p style="font-size:12px;color:var(--muted);margin-top:.5rem">Log scale. Diamonds = point estimate; bars = 95% CI. ★ p&lt;0.05, ★★★ p&lt;0.001. Reference: G1 CKD, normal BMI, NH White, high income, no diabetes.</p>
+
+  <div class="fig-wrap fig-mt-lg">
+    <img src="output/figures/04_forest_plot.png" alt="Forest plot of fully adjusted hazard ratios from Model 3" class="fig-img">
+    <p class="fig-cap">Figure 5. Forest plot of all 24 coefficient estimates from the fully adjusted Cox Model 3. Diamonds sized by statistical significance (p&lt;0.05). Terms ordered by hazard ratio magnitude. Log scale.</p>
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- S6 Three dominant predictors -->
+<section class="section fade-in" id="s6">
+  <span class="sec-num">Section 6</span>
+  <h2 class="sec-title">The Three Dominant Predictors</h2>
+
+  <div class="finding">
+    <div class="finding-label">Central Finding</div>
+    <p>After full adjustment, <strong>three factors dominate short-term mortality risk</strong>: age (HR 1.73 per decade), diabetes (HR 1.73), and economic hardship (HR 2.75 below poverty). Together they eclipse CKD stage as predictors. A 65-year-old diabetic patient living in poverty faces roughly <strong>8-fold higher mortality hazard</strong> than a 45-year-old non-diabetic high-income patient — regardless of eGFR category.</p>
+  </div>
+
+  <h3>6.1 Age × Diabetes interaction (illustrative)</h3>
+  <p>Age and diabetes carry identical adjusted HRs (1.73 each), and their effects multiply. An additional decade of age in a diabetic patient approximately doubles the combined risk relative to a younger non-diabetic.</p>
+
+  <h3>6.2 Socioeconomic gradient in mortality hazard</h3>
+  <p>After adjusting for age, diabetes, CKD stage, BMI, physical activity, and smoking, a sharp socioeconomic gradient persists. The below-poverty HR of 2.75 is the single largest point estimate in the model — larger than any CKD stage or clinical comorbidity.</p>
+
+  <div class="income-grid">
+    <div class="income-card inc-ref"><div class="inc-tier">High income</div><div class="inc-hr">1.00</div><div class="inc-ci">Reference</div></div>
+    <div class="income-card inc-mid"><div class="inc-tier">Middle income</div><div class="inc-hr">1.35</div><div class="inc-ci">95% CI: 0.59–3.07<br>p = 0.476 (n.s.)</div></div>
+    <div class="income-card inc-low"><div class="inc-tier">Low income</div><div class="inc-hr">2.48</div><div class="inc-ci">95% CI: 1.18–5.19<br>p = 0.016 ★</div></div>
+    <div class="income-card inc-pov"><div class="inc-tier">Below poverty</div><div class="inc-hr">2.75</div><div class="inc-ci">95% CI: 1.18–6.37<br>p = 0.019 ★</div></div>
+  </div>
+  <p style="font-size:13px;color:var(--muted);margin-top:.25rem">Adjusted hazard ratios from Model 3. Income categories defined by poverty-to-income ratio (PIR): below poverty &lt;1.0, low income 1.0–1.99, middle 2.0–3.99, high ≥4.0.</p>
+</section>
+
+<hr class="div">
+
+<!-- S7 Obesity paradox -->
+<section class="section fade-in" id="s7">
+  <span class="sec-num">Section 7</span>
+  <h2 class="sec-title">The Obesity Paradox in CKD</h2>
+
+  <div class="paradox-box">
+    <div class="paradox-label">⚠ Counter-intuitive Finding — Requires Interpretation</div>
+    <p>Overweight and obese adults had <strong>significantly lower mortality hazard</strong> than normal-weight adults (HR 0.32 and 0.37 respectively, both p&lt;0.001). This is not a statistical artefact — it is the well-documented <strong>obesity paradox in CKD populations</strong>, consistently replicated in nephrology literature.</p>
+  </div>
+
+  <h3>7.1 Observed mortality rates by BMI category</h3>
+  <div class="bmi-grid">
+    <div class="bmi-card bmi-uw"><div class="bmi-cat">Underweight<br>&lt;18.5</div><div class="bmi-rate">1.85</div><div class="bmi-unit">per 100 person-years</div><div class="bmi-hr">n=82</div></div>
+    <div class="bmi-card bmi-nm"><div class="bmi-cat">Normal<br>18.5–24.9</div><div class="bmi-rate">1.47</div><div class="bmi-unit">per 100 person-years</div><div class="bmi-hr">HR = 1.00 (ref) · n=1,258</div></div>
+    <div class="bmi-card bmi-ow"><div class="bmi-cat">Overweight<br>25–29.9</div><div class="bmi-rate">0.67</div><div class="bmi-unit">per 100 person-years</div><div class="bmi-hr">HR = 0.32 ★★★ · n=1,597</div></div>
+    <div class="bmi-card bmi-ob"><div class="bmi-cat">Obese<br>≥30</div><div class="bmi-rate">0.94</div><div class="bmi-unit">per 100 person-years</div><div class="bmi-hr">HR = 0.37 ★★★ · n=2,101</div></div>
+  </div>
+
+  <h3>7.2 Mechanistic explanations</h3>
+  <p>The obesity paradox in CKD is a recognised phenomenon with several proposed explanations:<sup class="ref">6</sup></p>
+  <ul class="limit-list" style="margin-top:.5rem">
+    <li><strong>Reverse causation (wasting).</strong> Normal-weight CKD patients often have low weight due to protein-energy wasting and muscle catabolism — markers of advanced disease — rather than genuine metabolic health.</li>
+    <li><strong>Metabolic reserve.</strong> Adipose tissue may provide a protective metabolic buffer during acute illness episodes common in CKD (infections, hospitalisation).</li>
+    <li><strong>Haemodynamic stability.</strong> Higher BMI is associated with higher blood pressure, which may be advantageous in dialysis-eligible patients prone to hypotension.</li>
+    <li><strong>Short follow-up bias.</strong> With median follow-up of only 2.1 years, the paradox is likely amplified — longer follow-up studies often show the protective effect attenuate over time.</li>
+  </ul>
+</section>
+
+<hr class="div">
+
+<!-- S8 Validation -->
+<section class="section fade-in" id="s8">
+  <span class="sec-num">Section 8</span>
+  <h2 class="sec-title">Model Validation &amp; Sensitivity Analyses</h2>
+
+  <h3>8.1 Proportional hazards assumption</h3>
+  <p>The PH assumption was tested globally and per-variable using Schoenfeld residuals. No violations were detected (global p=0.920). All individual terms also passed (all per-variable p&gt;0.05), supporting retention of the standard time-invariant Cox model.</p>
+
+  <div class="fig-wrap">
+    <img src="output/figures/04_schoenfeld.png" alt="Schoenfeld residual plots for PH assumption testing" class="fig-img">
+    <p class="fig-cap">Figure 6. Schoenfeld residual plots for each model term. Flat LOESS curves indicate no time-varying HR (PH assumption satisfied). Global p = 0.920.</p>
+  </div>
+
+  <h3>8.1b Martingale residuals — functional form</h3>
+  <p>Martingale residuals were plotted against each continuous covariate (eGFR, UACR, age) to verify that linear functional forms are adequate. The LOESS smooths are approximately flat and centred near zero for all predictors, confirming no systematic non-linearity is missed by the primary model.</p>
+  <div class="fig-wrap">
+    <img src="output/figures/04_martingale.png" alt="Martingale residual plots for continuous predictors" class="fig-img">
+    <p class="fig-cap">Figure 6b. Martingale residuals from a null Cox model against each continuous predictor. Near-zero LOESS curves indicate that linear transformations are appropriate. The eGFR relationship is further validated by the RCS spline test (Section 8.4).</p>
+  </div>
+
+  <h3>8.2 Cross-validation — C-statistic by fold</h3>
+  <p>The 10-fold stratified CV (stratified on event indicator) yielded a mean C-statistic of 0.810 (SE=0.021), compared to the optimistic full-data estimate of 0.847. The optimism of 3.7 points is modest, indicating the model generalises well without substantial overfitting.</p>
+
+  <div class="cv-fold-wrap" id="cv-folds">
+    <div class="cv-fold-bar"><div class="cv-fold-fill" data-h="52" style="background:#4a7faa"></div><div class="cv-fold-val">0.727</div><div class="cv-fold-label">F1</div></div>
+    <div class="cv-fold-bar"><div class="cv-fold-fill" data-h="56" style="background:#4a7faa"></div><div class="cv-fold-val">0.733</div><div class="cv-fold-label">F2</div></div>
+    <div class="cv-fold-bar"><div class="cv-fold-fill" data-h="75" style="background:#2c5f8a"></div><div class="cv-fold-val">0.819</div><div class="cv-fold-label">F3</div></div>
+    <div class="cv-fold-bar"><div class="cv-fold-fill" data-h="100" style="background:#1d6b4a"></div><div class="cv-fold-val">0.881</div><div class="cv-fold-label">F4</div></div>
+    <div class="cv-fold-bar"><div class="cv-fold-fill" data-h="77" style="background:#2c5f8a"></div><div class="cv-fold-val">0.831</div><div class="cv-fold-label">F5</div></div>
+    <div class="cv-fold-bar"><div class="cv-fold-fill" data-h="62" style="background:#4a7faa"></div><div class="cv-fold-val">0.758</div><div class="cv-fold-label">F6</div></div>
+    <div class="cv-fold-bar"><div class="cv-fold-fill" data-h="70" style="background:#2c5f8a"></div><div class="cv-fold-val">0.788</div><div class="cv-fold-label">F7</div></div>
+    <div class="cv-fold-bar"><div class="cv-fold-fill" data-h="68" style="background:#2c5f8a"></div><div class="cv-fold-val">0.777</div><div class="cv-fold-label">F8</div></div>
+    <div class="cv-fold-bar"><div class="cv-fold-fill" data-h="99" style="background:#1d6b4a"></div><div class="cv-fold-val">0.927</div><div class="cv-fold-label">F9</div></div>
+    <div class="cv-fold-bar"><div class="cv-fold-fill" data-h="90" style="background:#1d6b4a"></div><div class="cv-fold-val">0.855</div><div class="cv-fold-label">F10</div></div>
+  </div>
+  <div class="note" style="margin-top:.25rem">Bar height ∝ fold C-statistic (range 0.727–0.927). Fold-level variation reflects small event counts per fold (~8 events/fold). Mean CV C = 0.810; full-data C = 0.847. Optimism = 3.7 points.</div>
+
+  <h3>8.2b Calibration — observed vs. predicted survival</h3>
+  <p>Model calibration was assessed by comparing predicted 2-year survival probabilities to observed Kaplan–Meier estimates across risk deciles. Agreement between predicted and observed survival indicates the model is well-calibrated in addition to being discriminating.</p>
+  <div class="fig-wrap">
+    <img src="output/figures/05_calibration.png" alt="Calibration plot: observed vs. predicted 2-year survival by risk decile" class="fig-img">
+    <p class="fig-cap">Figure 8a. Calibration plot. Predicted 2-year survival probabilities (x-axis) vs. Kaplan–Meier observed survival (y-axis) by risk decile. Points near the 45° line indicate good calibration. Slight underestimation at very low predicted risk (top decile) reflects the low overall event rate (2.0%).</p>
+  </div>
+
+  <h3>8.2c Cross-validated C-statistics — model comparison</h3>
+  <div class="fig-wrap">
+    <img src="output/figures/05_cv_cstat.png" alt="Cross-validated C-statistics across all three Cox models" class="fig-img">
+    <p class="fig-cap">Figure 8b. 10-fold cross-validated C-statistics for Models 1–3. Error bars represent ±1 SE across folds. The dramatic gain from M1→M2 (CKD+demographics) versus the modest gain M2→M3 (full comorbidity adjustment) is visible — age and sex carry most of the prognostic signal captured by clinical and lifestyle variables.</p>
+  </div>
+
+  <h3>8.3 Sensitivity analyses summary</h3>
+  <table class="sens-table">
+    <thead><tr><th>Analysis</th><th>Method</th><th>Key Result</th><th>Consistency</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>SA-1: Multiple imputation</td>
+        <td>MICE, m=20, PMM</td>
+        <td>Age HR 1.73 unchanged; UACR becomes significant (HR 1.20, p=0.033); poverty attenuated to 2.44 but remains significant</td>
+        <td><span class="badge badge-match">Consistent</span></td>
+      </tr>
+      <tr>
+        <td>SA-2: eGFR dose-response</td>
+        <td>Restricted cubic splines (3 knots)</td>
+        <td>Non-linearity LRT p=0.259 — linear approximation adequate</td>
+        <td><span class="badge badge-match">Consistent</span></td>
+      </tr>
+      <tr>
+        <td>SA-3: PH violations</td>
+        <td>Log(time) interaction terms</td>
+        <td>No significant time × covariate interactions; primary model retained</td>
+        <td><span class="badge badge-match">Consistent</span></td>
+      </tr>
+      <tr>
+        <td>SA-4: Subgroup analysis</td>
+        <td>Stratified Cox by diabetes × CKD stage</td>
+        <td>HRs estimated across subgroups; no significant interaction (interaction p reported in output)</td>
+        <td><span class="badge badge-match">Consistent</span></td>
+      </tr>
+      <tr>
+        <td>SA-5: Cause-specific mortality</td>
+        <td>Competing risks Cox</td>
+        <td>CVD deaths: 25; Renal deaths: 0. Insufficient renal-specific events for separate model</td>
+        <td><span class="badge badge-match">Consistent</span></td>
+      </tr>
+      <tr>
+        <td>SA-6: eGFR threshold sensitivity</td>
+        <td>Alternative CKD cutoffs</td>
+        <td>eGFR&lt;45: HR=1.31; eGFR&lt;75: HR=1.60 — threshold choice affects magnitude but direction unchanged</td>
+        <td><span class="badge badge-match">Consistent</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>8.3b Subgroup forest plot — CKD stage × diabetes</h3>
+  <p>Diabetes × CKD-stage interactions were explored visually via a stratified forest plot. HRs were estimated separately for diabetic and non-diabetic subgroups within each CKD stage. No statistically significant interactions were detected, indicating the primary model coefficients are broadly applicable across these subgroups.</p>
+  <div class="fig-wrap">
+    <img src="output/figures/06_subgroup_forest.png" alt="Subgroup forest plot stratified by diabetes status and CKD stage" class="fig-img">
+    <p class="fig-cap">Figure 9. Subgroup forest plot. Hazard ratios (95% CI) for all-cause mortality estimated within diabetes × CKD-stage subgroups. No interaction terms reached statistical significance (all interaction p &gt;0.10), supporting the additive multiplicative structure of the primary Cox model.</p>
+  </div>
+
+  <h3>8.4 eGFR dose-response spline</h3>
+  <div class="fig-wrap">
+    <img src="output/figures/06_spline_egfr.png" alt="Restricted cubic spline of eGFR-mortality association" class="fig-img">
+    <p class="fig-cap">Figure 7. Restricted cubic spline (3 knots) of the eGFR–mortality association. Reference eGFR = 90. Bootstrap 95% CI (B=500). Non-linearity likelihood ratio test p=0.259 — a linear model adequately describes the association over the observed eGFR range.</p>
+  </div>
+</section>
+
+<hr class="div">
+
+<!-- S9 Discussion -->
+<section class="section fade-in" id="s9">
+  <span class="sec-num">Section 9</span>
+  <h2 class="sec-title">Discussion</h2>
+
+  <h3>CKD stage is attenuated by comorbidity adjustment</h3>
+  <p>The most striking finding is that CKD G-stage — the primary clinical classification tool — does not independently predict short-term mortality after full multivariable adjustment. Model 1 (CKD stage only) achieved C=0.744, but the C-statistic improvement from Model 1 to Model 2 (adding age, sex, race/ethnicity: +0.089) vastly exceeds the improvement from Model 2 to Model 3 (adding diabetes, income, BMI, lifestyle: +0.014). This confirms that eGFR staging captures mortality risk largely through its correlation with age and comorbid burden — not through an independent pathway.</p>
+  <p>This does not diminish the clinical value of eGFR staging for monitoring disease progression, guiding treatment thresholds, and predicting ESRD. Rather, it underscores that survival prediction requires a broader multidomain model. These findings align with the CKD Prognosis Consortium literature showing that UACR, rather than eGFR alone, carries important independent prognostic information — consistent with our borderline-significant UACR finding (HR 1.19, p=0.057) that becomes significant (p=0.033) in MI analysis.<sup class="ref">2</sup></p>
+
+  <h3>Age and diabetes as equivalent mortality drivers</h3>
+  <p>The identical HRs for age per decade (1.73) and diabetes (1.73) are notable: a diagnosis of diabetes confers the same short-term mortality hazard as 10 additional years of aging. Combined with the multiplicative nature of Cox models, this means that an older diabetic CKD patient faces substantially compounded risk — reinforcing the importance of diabetes management as the primary modifiable intervention target in CKD care.</p>
+
+  <h3>Economic hardship as the strongest predictor</h3>
+  <p>The below-poverty HR of 2.75 is the largest point estimate in the model — exceeding the effect size of any clinical or behavioral predictor. This structural determinant of health persists after adjusting for lifestyle and clinical factors, reflecting barriers to care access, medication adherence, dietary quality, and chronic stress that cannot be fully captured by behavioral variables. For programs like KECC working with Medicare ESRD populations, income and dual-eligibility status may be as prognostically important as clinical staging.</p>
+
+  <h3>Study limitations and follow-up considerations</h3>
+  <p>The 2.1-year median follow-up is the primary constraint on these results. CKD-related mortality typically manifests over 5–10+ year horizons; ESRD progression, cardiovascular events, and CKD-stage-specific mortality gradients require longer observation to separate. Future analyses with the USRDS database — covering 3+ million ESRD patients with decade-long follow-up — would be better positioned to characterise stage-specific mortality trajectories.</p>
+</section>
+
+<hr class="div">
+
+<!-- Limitations -->
+<section class="section fade-in" id="limitations">
+  <span class="sec-num">Limitations</span>
+  <h2 class="sec-title">Limitations</h2>
+  <ul class="limit-list">
+    <li><strong>Short follow-up (2.1 years median).</strong> The NHANES mortality linkage file is cut to December 2019, restricting follow-up for J-cycle participants and excluding L-cycle participants entirely. CKD stage-specific mortality gradients (G3–G5) require 5–10+ years to fully manifest. Results should be interpreted as predictors of short-term rather than long-term survival.</li>
+    <li><strong>Cross-sectional exposure measurement.</strong> NHANES biomarkers (creatinine, HbA1c, UACR) are measured at a single time point. Chronic exposure to reduced eGFR and persistent albuminuria — more relevant for mortality prediction — cannot be captured without repeated measures.</li>
+    <li><strong>Questionnaire-based comorbidities.</strong> Hypertension and physical activity were derived from self-report questionnaires, subject to recall and social-desirability bias. Accelerometer-based PA and measured blood pressure were available but not fully integrated.</li>
+    <li><strong>Sparse G4/G5 strata.</strong> Only 45 participants had eGFR &lt;30 (G4–G5), producing unstable Cox estimates with wide confidence intervals. Stage-specific analyses in these advanced-CKD subgroups are underpowered.</li>
+    <li><strong>Missing dietary data.</strong> UACR and dietary covariates had non-trivial missingness (&gt;15%); complete-case analysis reduces sample from 5,038 to 3,739. Multiple imputation (SA-1) shows broadly consistent results.</li>
+    <li><strong>Mortality file does not cover 2020+.</strong> Deaths occurring after December 2019 are not captured, meaning COVID-19–related excess mortality in CKD patients (a known vulnerability) is entirely absent from the outcome.</li>
+  </ul>
+</section>
+
+<hr class="div">
+
+<!-- References -->
+<section class="section references fade-in" id="references">
+  <span class="sec-num">References</span>
+  <h2 class="sec-title">References</h2>
+  <ol>
+    <li>KDIGO CKD Work Group. KDIGO 2024 Clinical Practice Guideline for the Evaluation and Management of Chronic Kidney Disease. <em>Kidney Int.</em> 2024;105(4S):S117–S314. doi:10.1016/j.kint.2023.10.018</li>
+    <li>CKD Prognosis Consortium; Matsushita K, et al. Association of estimated GFR and albuminuria with all-cause and cardiovascular mortality. <em>Lancet.</em> 2010;375:2073–2081. doi:10.1016/S0140-6736(10)60674-5</li>
+    <li>Inker LA, Eneanya ND, Coresh J, et al. New Creatinine- and Cystatin C–Based Equations to Estimate GFR without Race. <em>N Engl J Med.</em> 2021;385:1737–1749. doi:10.1056/NEJMoa2102953</li>
+    <li>Centers for Disease Control and Prevention / NCHS. NHANES 2017–2023. <a href="https://wwwn.cdc.gov/nchs/nhanes/" style="color:var(--accent)">wwwn.cdc.gov/nchs/nhanes</a></li>
+    <li>Chu CD, McCulloch CE, Banerjee T, et al. CKD Awareness Among US Adults by Future Risk of Kidney Failure. <em>Am J Kidney Dis.</em> 2021;76:174–183.</li>
+    <li>United States Renal Data System. 2023 USRDS Annual Data Report. National Institutes of Health, NIDDK; Bethesda, MD: 2023.</li>
+    <li>van Buuren S, Groothuis-Oudshoorn K. mice: Multivariate Imputation by Chained Equations in R. <em>J Stat Softw.</em> 2011;45(3):1–67.</li>
+    <li>Kuhn M, Wickham H. Tidymodels: a collection of packages for modelling and machine learning using tidyverse principles. 2020. <a href="https://www.tidymodels.org" style="color:var(--accent)">tidymodels.org</a></li>
+  </ol>
+</section>
+
+<footer>
+  <span>Yuntao (Kevin) Tan · tyuntao@umich.edu · December 2025</span>
+  <span>CDC NHANES 2017–2023 · N = 5,038 · 102 events · R 4.5.0</span>
+</footer>
+</div>
+
+<script>
+/* ── Counter animation ─────────────────────────────────────────────── */
+[
+  {id:'cnt-n',    target:5038,  fmt: v => Math.round(v).toLocaleString()},
+  {id:'cnt-ev',  target:102,   fmt: v => Math.round(v)},
+  {id:'cnt-cstat',target:0.847, fmt: v => v.toFixed(3)},
+  {id:'cnt-cv',  target:0.810, fmt: v => v.toFixed(3)},
+].forEach(({id, target, fmt}) => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const io = new IntersectionObserver(entries => {
+    if (!entries[0].isIntersecting) return;
+    let start = null;
+    const step = ts => {
+      if (!start) start = ts;
+      const p = Math.min((ts - start) / 1400, 1);
+      const eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = fmt(target * eased);
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+    io.disconnect();
+  }, {threshold: 0.5});
+  io.observe(el);
+});
+
+/* ── Cohort funnel ─────────────────────────────────────────────────── */
+const funnelSteps = document.querySelectorAll('.funnel-step');
+const funnelIo = new IntersectionObserver(entries => {
+  if (entries[0].isIntersecting) {
+    funnelSteps.forEach((step, i) => {
+      setTimeout(() => {
+        step.classList.add('visible');
+        const fill = step.querySelector('.funnel-bar-fill');
+        if (fill) fill.style.width = fill.dataset.w + '%';
+      }, i * 200);
+    });
+    funnelIo.disconnect();
+  }
+}, {threshold: 0.1});
+if (funnelSteps[0]) funnelIo.observe(funnelSteps[0]);
+
+/* ── Tab switching ─────────────────────────────────────────────────── */
+function switchTab(id) {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  event.target.classList.add('active');
+  animateBars(document.getElementById('tab-'+id));
+}
+
+/* ── Bar animation ─────────────────────────────────────────────────── */
+function animateBars(container) {
+  const rows = container.querySelectorAll('.risk-bar-row');
+  rows.forEach((row, i) => {
+    setTimeout(() => {
+      row.classList.add('visible');
+      const fill = row.querySelector('.rb-fill');
+      if (fill) fill.style.width = fill.dataset.w + '%';
+    }, i * 100);
+  });
+}
+const initTabIo = new IntersectionObserver(entries => {
+  if (entries[0].isIntersecting) {
+    animateBars(document.querySelector('.tab-content.active'));
+    initTabIo.disconnect();
+  }
+}, {threshold: 0.2});
+const actVis = document.querySelector('.activity-vis');
+if (actVis) initTabIo.observe(actVis);
+
+/* ── C-stat step builder ───────────────────────────────────────────── */
+const cstatSteps = document.querySelectorAll('.cstat-step');
+const cstatIo = new IntersectionObserver(entries => {
+  if (entries[0].isIntersecting) {
+    cstatSteps.forEach((step, i) => {
+      setTimeout(() => {
+        step.classList.add('visible');
+        const fill = step.querySelector('.cs-fill');
+        if (fill) fill.style.width = fill.dataset.w + '%';
+      }, i * 220);
+    });
+    cstatIo.disconnect();
+  }
+}, {threshold: 0.1});
+if (cstatSteps[0]) cstatIo.observe(cstatSteps[0]);
+
+/* ── Forest plot rendering ─────────────────────────────────────────── */
+function renderForest() {
+  const rows = document.querySelectorAll('.forest-row[data-or]');
+  const center = 50;
+  const scale = 12;
+  rows.forEach(row => {
+    const OR   = parseFloat(row.dataset.or);
+    const lo   = parseFloat(row.dataset.lo);
+    const hi   = parseFloat(row.dataset.hi);
+    const prot = row.dataset.prot;
+    const area = row.querySelector('.fr-bar-area');
+    const logOR = Math.log(OR);
+    const logLo = Math.log(lo);
+    const logHi = Math.log(hi);
+
+    const ciEl = document.createElement('div');
+    ciEl.className = 'fr-ci';
+    const ciLeft  = Math.max(2, center + logLo * scale);
+    const ciRight = Math.min(98, center + logHi * scale);
+    ciEl.style.cssText = `left:${ciLeft}%;width:${ciRight - ciLeft}%;background:${prot==='true'?'#1d6b4a':prot==='false'?'#8b1f1f':'#888'};opacity:0;transition:opacity .6s ease`;
+    area.appendChild(ciEl);
+
+    const dEl = document.createElement('div');
+    dEl.className = 'fr-diamond';
+    const dLeft = center + logOR * scale - 5;
+    dEl.style.cssText = `left:${dLeft}%;background:${prot==='true'?'#1d9e75':prot==='false'?'#c0392b':'#888'};opacity:0;transition:opacity .6s ease .15s`;
+    area.appendChild(dEl);
+
+    const io = new IntersectionObserver(entries => {
+      if (entries[0].isIntersecting) {
+        setTimeout(() => { ciEl.style.opacity='1'; dEl.style.opacity='1'; }, 80);
+        io.disconnect();
+      }
+    }, {threshold: 0.3});
+    io.observe(row);
+  });
+}
+renderForest();
+
+/* ── Forest row fade ───────────────────────────────────────────────── */
+const frIo = new IntersectionObserver(entries => {
+  entries.forEach((e, idx) => {
+    if (e.isIntersecting) setTimeout(() => e.target.classList.add('visible'), idx * 55);
+  });
+}, {threshold: 0.05});
+document.querySelectorAll('.forest-row[data-or]').forEach(r => frIo.observe(r));
+
+/* ── Income cards ──────────────────────────────────────────────────── */
+const incCards = document.querySelectorAll('.income-card');
+const incIo = new IntersectionObserver(entries => {
+  if (entries[0].isIntersecting) {
+    incCards.forEach((c, i) => setTimeout(() => c.classList.add('visible'), i * 90));
+    incIo.disconnect();
+  }
+}, {threshold: 0.2});
+if (incCards[0]) incIo.observe(incCards[0]);
+
+/* ── BMI cards ─────────────────────────────────────────────────────── */
+const bmiCards = document.querySelectorAll('.bmi-card');
+const bmiIo = new IntersectionObserver(entries => {
+  if (entries[0].isIntersecting) {
+    bmiCards.forEach((c, i) => setTimeout(() => c.classList.add('visible'), i * 90));
+    bmiIo.disconnect();
+  }
+}, {threshold: 0.2});
+if (bmiCards[0]) bmiIo.observe(bmiCards[0]);
+
+/* ── CV fold bars ──────────────────────────────────────────────────── */
+const cvFolds = document.querySelectorAll('.cv-fold-fill');
+const cvIo = new IntersectionObserver(entries => {
+  if (entries[0].isIntersecting) {
+    cvFolds.forEach((bar, i) => {
+      setTimeout(() => { bar.style.height = bar.dataset.h + '%'; }, i * 80);
+    });
+    cvIo.disconnect();
+  }
+}, {threshold: 0.2});
+const cvWrap = document.getElementById('cv-folds');
+if (cvWrap) cvIo.observe(cvWrap);
+
+/* ── General fade-in ───────────────────────────────────────────────── */
+const fadeIo = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, {threshold: 0.08});
+document.querySelectorAll('.fade-in').forEach(el => fadeIo.observe(el));
+</script>
+</body>
+</html>

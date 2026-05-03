@@ -1,0 +1,3 @@
+method,c_statistic,se,note
+"Base coxph (full data, optimistic)",0.847,0.0202,Evaluated on training data — subject to overfitting bias
+tidymodels 10-fold CV (unbiased),0.81,0.0207,Evaluated on held-out folds — preferred for reporting
