@@ -2,6 +2,8 @@
 
 Survival analysis of all-cause mortality in U.S. adults with chronic kidney disease using NHANES 2017–2023 linked to the NCHS National Death Index. Implemented end-to-end in R.
 
+**[View Research Report →](https://kevintan701.github.io/ckd-survival-analysis/)**
+
 ---
 
 ## Project Structure
