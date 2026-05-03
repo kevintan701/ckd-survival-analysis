@@ -1,8 +1,6 @@
 # CKD Progression & Mortality Risk Factors — NHANES 2017–2023
 
-**[View the Research Report →](https://kevintan701.github.io/ckd-survival-analysis/)**
-
-Survival analysis of **all-cause mortality in U.S. adults with chronic kidney disease (CKD)** using NHANES 2017–2023 linked to National Death Index records. Implemented end-to-end in R: data download, cohort construction, Cox regression, cross-validation, multiple imputation, and a self-contained Quarto report.
+Survival analysis of all-cause mortality in U.S. adults with chronic kidney disease using NHANES 2017–2023 linked to the NCHS National Death Index. Implemented end-to-end in R.
 
 ---
 
@@ -18,13 +16,13 @@ ckd-survival-analysis/
 │   ├── 05_tidymodels.R          # 10-fold stratified CV via tidymodels + censored
 │   └── 06_sensitivity.R         # Multiple imputation (MICE), spline dose-response, subgroup, cause-specific
 ├── report/
-│   └── analysis.qmd             # Quarto report → HTML
+│   └── analysis.qmd             # Quarto report
 ├── output/
 │   ├── figures/                 # ggplot2 / survminer plots (PNG)
 │   └── tables/                  # gtsummary tables (HTML + CSV)
 ├── data/
-│   ├── raw/                     # Downloaded NHANES XPT files (J and L cycles)
-│   └── processed/               # Cleaned analysis dataset (.rds)
+│   ├── raw/                     # NHANES XPT files (J and L cycles) + NCHS mortality linkage
+│   └── processed/               # Cleaned analytic dataset (.rds / .csv)
 └── README.md
 ```
 
@@ -34,8 +32,8 @@ ckd-survival-analysis/
 
 ### Data Source
 
-- **NHANES J cycle** (2017–2018) and **L cycle** (2021–2023) — two completed survey cycles with publicly available XPT files. The K cycle (2019–2020) was suspended mid-collection due to COVID-19 and was never released as standalone files by CDC.
-- Mortality follow-up linked via the **NHANES Public Use Linked Mortality Files** (NCHS/NDI), providing time-to-death outcomes.
+- **NHANES J cycle** (2017–2018) and **L cycle** (2021–2023). The K cycle (2019–2020) was suspended due to COVID-19 and never released by CDC.
+- Mortality outcome from the **NCHS Public Use Linked Mortality Files** (NDI linkage, through December 2019).
 
 ### Cohort
 
@@ -46,16 +44,16 @@ ckd-survival-analysis/
 | Linked mortality record | 5,124 |
 | Complete covariates (BMI, HbA1c) | **5,038** |
 
-Follow-up: median **2.1 years**; **102 deaths** (2.0%).
+Median follow-up: **2.1 years**; **102 deaths** (2.0%).
 
 ### Key Variables
 
 | Domain | Variables |
 |---|---|
-| **Outcome** | All-cause mortality (time-to-event, NHANES linked mortality file) |
-| **Renal function** | eGFR (CKD-EPI 2021, race-free), UACR (log-transformed), CKD G-stage |
+| **Outcome** | All-cause mortality (time-to-event) |
+| **Renal function** | eGFR (CKD-EPI 2021, race-free), UACR (log-transformed), CKD G-stage (KDIGO 2024) |
 | **Metabolic** | Diabetes (HbA1c ≥6.5% or diagnosis), hypertension (questionnaire), BMI category |
-| **Lifestyle** | Physical activity (MET-min/week from PAQ/PAD modules), smoking |
+| **Lifestyle** | Physical activity (MET-min/week), smoking status |
 | **Demographics** | Age (per 10 years), sex, race/ethnicity, poverty-to-income ratio category |
 
 ### Statistical Approach
@@ -68,23 +66,23 @@ Follow-up: median **2.1 years**; **102 deaths** (2.0%).
 | PH assumption | Schoenfeld residuals (global + per-variable) | `survival` |
 | Functional form | Martingale residuals, restricted cubic splines | `rms` |
 | Model discrimination | Harrell's C-statistic + 10-fold stratified CV | `tidymodels` + `censored` |
-| Missing data | Multiple imputation by chained equations (m=20) | `mice` |
+| Missing data | Multiple imputation by chained equations (m=20, PMM) | `mice` |
 | Sensitivity | Cause-specific Cox, subgroup forest plot | `survival` |
 
 ---
 
 ## Results
 
-### Cohort & Model Discrimination
+### Model Discrimination
 
 | Model | N | Events | C-statistic |
 |---|---|---|---|
-| Model 1: CKD stage only (unadjusted) | 5,038 | 102 | 0.744 |
-| Model 2: + Demographics | 3,790 | 87 | 0.833 |
-| Model 3: Full (all covariates) | 3,739 | 78 | 0.847 |
-| Model 3: 10-fold CV (unbiased) | — | — | **0.810** |
+| Model 1: CKD stage only | 5,038 | 102 | 0.744 |
+| Model 2: + Demographics (age, sex, race/ethnicity) | 3,790 | 87 | 0.833 |
+| Model 3: Full model (all covariates) | 3,739 | 78 | 0.847 |
+| Model 3: 10-fold cross-validated | — | — | **0.810** |
 
-Proportional hazards assumption passed globally (Schoenfeld residuals, p = 0.92).
+Proportional hazards assumption passed globally (Schoenfeld residuals, p = 0.920).
 
 ### Key Findings — Model 3 Adjusted Hazard Ratios
 
@@ -96,25 +94,11 @@ Proportional hazards assumption passed globally (Schoenfeld residuals, p = 0.92)
 | Low income | **2.48 (1.18–5.19)** | 0.016 |
 | Overweight BMI | **0.32 (0.17–0.58)** | <0.001 |
 | Obese BMI | **0.37 (0.21–0.65)** | <0.001 |
-| CKD stage G3a vs G1 | 1.20 (0.53–2.72) | 0.67 |
-| CKD stage G3b vs G1 | 1.75 (0.71–4.34) | 0.23 |
+| CKD G3a vs G1 | 1.20 (0.53–2.72) | 0.670 |
+| CKD G3b vs G1 | 1.75 (0.71–4.34) | 0.230 |
 | log(UACR) | 1.19 (1.00–1.41) | 0.057 |
 
-**Age, diabetes, and poverty** were the dominant predictors. CKD stage was not independently significant after full adjustment, consistent with the short median follow-up (2.1 years) in this cross-sectional sample linked to mortality — eGFR-based staging requires longer observation to separate mortality gradients. The inverse BMI–mortality association (obesity paradox) is a recognized phenomenon in CKD populations and is discussed in the report.
-
----
-
-## Interactive Report (GitHub Pages)
-
-The `index.html` at the repo root is a self-contained research report with interactive visualizations. To publish it via GitHub Pages:
-
-1. Push this repository to GitHub
-2. Go to **Settings → Pages → Source** and set branch to `main`, folder to `/ (root)`
-3. The report will be live at `https://<your-username>.github.io/ckd-survival-analysis/`
-
-All figure paths in `index.html` are relative (`output/figures/*.png`), so they resolve correctly under GitHub Pages with no changes needed.
-
-> **Note:** `data/raw/` contains the original NHANES XPT files and NCHS mortality linkage file (publicly available from CDC). `data/processed/` contains the cleaned analytic dataset. Both are included in the repo for reproducibility.
+Age, diabetes, and poverty were the dominant predictors. CKD G-stage was not independently significant after full adjustment, consistent with the short follow-up window — eGFR-based mortality gradients require longer observation to manifest. The inverse BMI–mortality association (obesity paradox) is a well-documented phenomenon in CKD populations.
 
 ---
 
@@ -129,8 +113,7 @@ install.packages(c(
   "survival", "survminer",
   "gtsummary", "gt", "broom.helpers",
   "tidymodels", "censored",
-  "mice",
-  "rms",
+  "mice", "rms",
   "quarto", "sessioninfo"
 ))
 ```
@@ -147,7 +130,7 @@ Rscript R/06_sensitivity.R        # ~5 min (MICE m=20)
 quarto render report/analysis.qmd
 ```
 
-> **Note:** The K cycle (2019–2020) raw folder will be empty — CDC never released these files. Scripts handle this gracefully and proceed with J and L cycles only.
+> The K cycle (2019–2020) raw folder is empty — CDC never released these files. Scripts handle this gracefully and proceed with J and L cycles only.
 
 ---
 
