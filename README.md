@@ -1,6 +1,6 @@
 # CKD Progression & Mortality Risk Factors — NHANES 2017–2023
 
-Survival analysis of all-cause mortality in U.S. adults with chronic kidney disease using NHANES 2017–2023 linked to the NCHS National Death Index. Implemented end-to-end in R.
+End-to-end survival analysis of all-cause mortality in U.S. adults with chronic kidney disease (CKD) using NHANES 2017–2023 linked to the NCHS National Death Index. Covers cohort construction, CKD-EPI 2021 eGFR staging, multivariable Cox regression, cross-validated model discrimination, multiple imputation, and sensitivity analyses — implemented entirely in R.
 
 **[View Research Report →](https://kevintan701.github.io/ckd-survival-analysis/)**
 
@@ -11,14 +11,7 @@ Survival analysis of all-cause mortality in U.S. adults with chronic kidney dise
 ```
 ckd-survival-analysis/
 ├── R/
-│   ├── 01_data_download.R       # NHANES XPT retrieval via nhanesA; mortality .dat parsing
-│   ├── 02_data_cleaning.R       # Cohort construction, CKD-EPI 2021 eGFR, variable harmonization
-│   ├── 03_eda.R                 # Descriptive statistics, Table 1, Kaplan–Meier curves
-│   ├── 04_survival_analysis.R   # Cox regression (3 nested models), PH assumption, forest plot
-│   ├── 05_tidymodels.R          # 10-fold stratified CV, calibration via tidymodels + censored
-│   └── 06_sensitivity.R         # Multiple imputation (MICE), RCS spline, subgroup, cause-specific Cox
-├── report/
-│   └── analysis.qmd             # Quarto report (HTML, code-folding, numbered sections)
+│   └── ckd_analysis.R           # End-to-end pipeline: download → clean → EDA → Cox → CV → sensitivity
 ├── output/
 │   ├── figures/                 # PNG figures (ggplot2 / survminer)
 │   └── tables/                  # Model output and summary tables (CSV + HTML)
@@ -35,8 +28,9 @@ ckd-survival-analysis/
 
 ### Data Source
 
-- **NHANES J cycle** (2017–2018) and **L cycle** (2021–2023). The K cycle (2019–2020) was suspended due to COVID-19 and never released by CDC.
-- Mortality outcome from the **NCHS Public Use Linked Mortality Files** (NDI linkage, through December 2019).
+- **NHANES J cycle** (2017–2018) and **L cycle** (2021–2023). The K cycle (2019–2020) was suspended due to COVID-19 and never released by CDC; the pipeline handles this automatically.
+- Mortality outcome from the **NCHS Public Use Linked Mortality Files** (NDI linkage through December 2019).
+- All files are downloaded at runtime via `nhanesA` (XPT) and direct URL (fixed-width `.dat`).
 
 ### Cohort
 
@@ -118,19 +112,13 @@ install.packages("pacman")  # handles all remaining dependencies
 # tidymodels, censored, mice, rms
 ```
 
-### Run Order
+### Run
 
 ```bash
-Rscript R/01_data_download.R      # ~5 min (downloads ~25 MB from CDC)
-Rscript R/02_data_cleaning.R
-Rscript R/03_eda.R
-Rscript R/04_survival_analysis.R
-Rscript R/05_tidymodels.R         # ~3 min (10-fold CV)
-Rscript R/06_sensitivity.R        # ~5 min (MICE m=20)
-quarto render report/analysis.qmd
+Rscript R/ckd_analysis.R   # ~13 min (downloads ~25 MB from CDC, then runs all stages)
 ```
 
-> The K cycle (2019–2020) raw folder is empty — CDC never released these files. Scripts handle this gracefully and proceed with J and L cycles only.
+> The K cycle (2019–2020) is unavailable — CDC never released these files. The pipeline handles this gracefully and proceeds with J and L cycles only.
 
 ---
 
