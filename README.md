@@ -123,11 +123,21 @@ install.packages("pacman")  # handles all remaining dependencies
 
 ### Run
 
+**Terminal (macOS / Linux)**
 ```bash
-Rscript R/ckd_analysis.R   # ~13 min (downloads ~25 MB from CDC, then runs all stages)
+Rscript R/ckd_analysis.R
 ```
 
-> The K cycle (2019–2020) is unavailable — CDC never released these files. The pipeline handles this gracefully and proceeds with J and L cycles only.
+**RStudio (any platform)**
+
+Open `R/ckd_analysis.R` and use *Source* (Ctrl+Shift+S / Cmd+Shift+S), or run in the console:
+```r
+source("R/ckd_analysis.R")
+```
+
+The pipeline downloads data set from CDC on first run and writes all outputs to `output/`.
+
+> The K cycle (2019–2020) is unavailable — CDC never released these files. The pipeline handles this automatically and proceeds with J and L cycles only.
 
 ---
 
