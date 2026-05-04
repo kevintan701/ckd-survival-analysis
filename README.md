@@ -1,8 +1,35 @@
 # CKD Progression & Mortality Risk Factors — NHANES 2017–2023
 
-End-to-end survival analysis of all-cause mortality in U.S. adults with chronic kidney disease (CKD) using NHANES 2017–2023 linked to the NCHS National Death Index. Covers cohort construction, CKD-EPI 2021 eGFR staging, multivariable Cox regression, cross-validated model discrimination, multiple imputation, and sensitivity analyses — implemented entirely in R.
+Survival analysis of all-cause mortality in U.S. adults with chronic kidney disease (CKD) using NHANES 2017–2023 linked to the NCHS National Death Index. Pipeline includes cohort construction, CKD-EPI 2021 eGFR staging, multivariable Cox proportional hazards regression, 10-fold cross-validated model discrimination, multiple imputation (MICE), and sensitivity analyses. Implemented in R.
 
 **[View Research Report →](https://kevintan701.github.io/ckd-survival-analysis/)**
+
+---
+
+## Overview
+
+This project examines risk factors for all-cause mortality in U.S. adults with CKD using two NHANES cycles (J: 2017–2018; L: 2021–2023) linked to the NCHS National Death Index. The analytic cohort includes 5,038 participants with complete renal function measures and covariate data, with a median follow-up of 2.1 years and 102 observed deaths (2.0%).
+
+Three nested Cox proportional hazards models were fit — progressing from CKD stage alone to a fully adjusted model including demographics, metabolic comorbidities, and lifestyle factors. Model discrimination was assessed using Harrell's C-statistic with 10-fold stratified cross-validation. Sensitivity analyses included multiple imputation (MICE, m=20), restricted cubic spline dose-response for eGFR, subgroup forest plots, and cause-specific Cox models.
+
+## Key Findings
+
+| Predictor | HR (95% CI) | p |
+|---|---|---|
+| Age (per 10 years) | **1.73 (1.40–2.15)** | <0.001 |
+| Diabetes | **1.73 (1.03–2.90)** | 0.038 |
+| Below poverty line | **2.75 (1.18–6.37)** | 0.019 |
+| Low income | **2.48 (1.18–5.19)** | 0.016 |
+| Overweight BMI | **0.32 (0.17–0.58)** | <0.001 |
+| Obese BMI | **0.37 (0.21–0.65)** | <0.001 |
+| CKD G3a vs G1 | 1.20 (0.53–2.72) | 0.670 |
+| CKD G3b vs G1 | 1.75 (0.71–4.34) | 0.230 |
+| log(UACR) | 1.19 (1.00–1.41) | 0.057 |
+
+- Age, diabetes, and poverty were the strongest independent predictors of mortality.
+- CKD G-stage (eGFR-based) was not independently significant after full adjustment, consistent with the short follow-up period — mortality gradients by eGFR require longer observation to manifest.
+- Higher BMI categories were associated with lower mortality risk, consistent with the obesity paradox documented in CKD populations.
+- Cross-validated C-statistic for the full model: **0.810** (apparent: 0.847).
 
 ---
 
@@ -68,9 +95,7 @@ Median follow-up: **2.1 years**; **102 deaths** (2.0%).
 
 ---
 
-## Results
-
-### Model Discrimination
+## Model Discrimination
 
 | Model | N | Events | C-statistic |
 |---|---|---|---|
@@ -80,22 +105,6 @@ Median follow-up: **2.1 years**; **102 deaths** (2.0%).
 | Model 3: 10-fold cross-validated | — | — | **0.810** |
 
 Proportional hazards assumption passed globally (Schoenfeld residuals, p = 0.920).
-
-### Key Findings — Model 3 Adjusted Hazard Ratios
-
-| Predictor | HR (95% CI) | p |
-|---|---|---|
-| Age (per 10 years) | **1.73 (1.40–2.15)** | <0.001 |
-| Diabetes | **1.73 (1.03–2.90)** | 0.038 |
-| Below poverty line | **2.75 (1.18–6.37)** | 0.019 |
-| Low income | **2.48 (1.18–5.19)** | 0.016 |
-| Overweight BMI | **0.32 (0.17–0.58)** | <0.001 |
-| Obese BMI | **0.37 (0.21–0.65)** | <0.001 |
-| CKD G3a vs G1 | 1.20 (0.53–2.72) | 0.670 |
-| CKD G3b vs G1 | 1.75 (0.71–4.34) | 0.230 |
-| log(UACR) | 1.19 (1.00–1.41) | 0.057 |
-
-Age, diabetes, and poverty were the dominant predictors. CKD G-stage was not independently significant after full adjustment, consistent with the short follow-up window — eGFR-based mortality gradients require longer observation to manifest. The inverse BMI–mortality association (obesity paradox) is a well-documented phenomenon in CKD populations.
 
 ---
 
