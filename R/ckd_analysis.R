@@ -7,7 +7,7 @@
 #
 #
 #  DESCRIPTION:
-#    End-to-end survival analysis of all-cause mortality in U.S. adults with
+#    Survival analysis of all-cause mortality in U.S. adults with
 #    chronic kidney disease (CKD) using NHANES 2017–2023 linked to the NCHS
 #    National Death Index (NDI). Covers multi-file XPT import via nhanesA,
 #    cohort construction, feature engineering (CKD-EPI 2021 eGFR, KDIGO
@@ -781,6 +781,8 @@ ggsave(here("output", "figures", "03_mortality_rates.png"),
        p_rates, width = 11, height = 7, dpi = 300)
 message("  ✔  Figure: Unadjusted mortality rates")
 
+# --- 3.8 Summary statistics to console ----------------------
+
 message("\n── Cohort Summary ──────────────────────────────────────────────────────")
 message("  Median eGFR        : ", median(df$egfr, na.rm = TRUE))
 message("  CKD prevalence     : ", round(mean(df$ckd, na.rm = TRUE) * 100, 1), "%")
@@ -1241,8 +1243,6 @@ message("\n── 05  Complete ────────────────�
 # 06  Sensitivity Analyses
 # =============================================================================
 message("\n── 06  Sensitivity Analyses ─────────────────────────────────────────────")
-
-# df, df_cox, cox_m3, surv_obj already in memory from sections 02–04
 
 # --- 6.1  SA-1: Multiple imputation (MICE, m=20, PMM) ------------------------
 # The primary analysis uses complete-case restriction (valid under MCAR but
